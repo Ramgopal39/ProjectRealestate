@@ -2,7 +2,7 @@ import React from "react";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { app } from "../firebase";
 import { useDispatch } from "react-redux";
-import { SignInStart, SignInSuccess, SignInFailure } from "../../redux/user/userSlice.js";
+import { SignInSuccess, SignInFailure } from "../../redux/user/userSlice.js";
 import { useNavigate } from "react-router-dom";
 
 export default function OAuth() {
@@ -17,6 +17,7 @@ export default function OAuth() {
       const res = await fetch("/api/auth/google", { 
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ name: result.user.displayName, email: result.user.email,  photoURL: result.user.photoURL }),
       });
       const data = await res.json();
@@ -24,6 +25,7 @@ export default function OAuth() {
       navigate("/");
     } catch (error) {
       console.error(error);
+      dispatch(SignInFailure(error.message || "Google sign-in failed"));
     }
   };
 

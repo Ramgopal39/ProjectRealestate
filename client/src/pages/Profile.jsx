@@ -1,52 +1,145 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { SignInSuccess } from "../../redux/user/userSlice"; // ✅ import Redux action
+import {
+  updateUserStart,
+  updateUserSuccess,
+  updateUserFailure,
+} from "../../redux/user/userSlice";
+import { deleteUserStart, deleteUserSuccess, deleteUserFailure } from "../../redux/user/userSlice";
 
 export default function Profile() {
   const fileRef = useRef();
   const dispatch = useDispatch();
-  const { currentUser } = useSelector((state) => state.user);
+  const { currentUser, error, loading } = useSelector((state) => state.user);
 
+  // file / preview state
   const [file, setFile] = useState(undefined);
   const [imagePreview, setImagePreview] = useState(
     currentUser?.photoURL || currentUser?.avatar || "/default-avatar.png"
   );
+  const [filePerc, setFilePerc] = useState(0);
+  const [success, setSuccess] = useState(false);
+
+  // controlled form state initialized from currentUser
   const [formData, setFormData] = useState({
-    username: currentUser?.username || "",
-    email: currentUser?.email || "",
+    username: "",
+    email: "",
     password: "",
   });
 
-  // ✅ Update preview instantly
+  // initialize formData when currentUser becomes available
   useEffect(() => {
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result);
-      reader.readAsDataURL(file);
+    if (currentUser) {
+      setFormData({
+        username: currentUser.username || "",
+        email: currentUser.email || "",
+        password: "",
+      });
+      setImagePreview(currentUser.photoURL || currentUser.avatar || "/default-avatar.png");
     }
+  }, [currentUser]);
+
+  // create local preview when file selected
+  useEffect(() => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => setImagePreview(reader.result);
+    reader.readAsDataURL(file);
   }, [file]);
 
-  // ✅ Handle input changes
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.id]: e.target.value });
+    const { id, value } = e.target;
+    setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
-  // ✅ Update Redux store so Header updates too
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!currentUser || !currentUser._id) {
+      return alert("No user logged in.");
+    }
 
-    // Create an updated user object
-    const updatedUser = {
-      ...currentUser,
-      username: formData.username,
-      email: formData.email,
-      photoURL: imagePreview, // ✅ new image
-    };
+    // Build multipart/form-data
+    const payload = new FormData();
+    payload.append("username", formData.username);
+    payload.append("email", formData.email);
+    if (formData.password) payload.append("password", formData.password);
+    if (file) payload.append("photo", file);
 
-    // Update Redux (and thus Header)
-    dispatch(SignInSuccess(updatedUser));
+    try {
+      dispatch(updateUserStart());
 
-    alert("Profile updated successfully!");
+      // IMPORTANT: make sure this path matches your backend route
+      const res = await fetch(`/api/users/update/${currentUser._id}`, {
+        method: "POST",
+        body: payload,
+        credentials: "include", // include cookies if your auth uses httpOnly cookie
+      });
+
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        const message = errBody.message || `Update failed (status ${res.status})`;
+        dispatch(updateUserFailure(message));
+        setSuccess(false);
+        return;
+      }
+
+      const data = await res.json();
+      dispatch(updateUserSuccess(data));
+      setSuccess(true);
+      
+    } catch (err) {
+      console.error("Update failed:", err);
+      dispatch(updateUserFailure(err.message || "Update failed"));
+      setSuccess(false);
+      
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!currentUser || !currentUser._id) {
+      return alert("No user logged in.");
+    }
+
+    try {
+      dispatch(deleteUserStart());
+
+      const res = await fetch(`/api/users/delete/${currentUser._id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(deleteUserFailure(data.message));
+        return;
+      }
+
+      dispatch(deleteUserSuccess(data));
+    } catch (err) {
+      console.error("Delete failed:", err);
+      dispatch(deleteUserFailure(err.message || "Delete failed"));
+    }
+  };
+
+  const handleSignOut = async () => {
+    if (!currentUser || !currentUser._id) {
+      return alert("No user logged in.");
+    }
+
+    try {
+      dispatch(signOutStart());
+
+      const res = await fetch(`/api/auth/signout`);
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(deleteUserFailure(data.message));
+        return;
+      }
+
+      dispatch(deleteUserSuccess(data));
+    } catch (err) {
+      console.error("Delete failed:", err);
+      dispatch(deleteUserFailure(err.message || "Delete failed"));
+    }
   };
 
   return (
@@ -54,24 +147,26 @@ export default function Profile() {
       <h1 className="text-3xl font-semibold text-center my-7">Profile</h1>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        {/* Hidden File Input */}
+        {/* Hidden file input */}
         <input
           type="file"
           accept="image/*"
           ref={fileRef}
           hidden
-          onChange={(e) => setFile(e.target.files[0])}
+          onChange={(e) => {
+            if (e.target.files && e.target.files[0]) setFile(e.target.files[0]);
+          }}
         />
 
-        {/* Image Preview */}
+        {/* image preview */}
         <img
-          onClick={() => fileRef.current.click()}
+          onClick={() => fileRef.current && fileRef.current.click()}
           src={imagePreview}
           alt="profile"
           className="rounded-full h-24 w-24 object-cover cursor-pointer self-center mt-2"
         />
 
-        {/* Form Inputs */}
+        {/* form fields (controlled) */}
         <input
           type="text"
           id="username"
@@ -106,9 +201,11 @@ export default function Profile() {
       </form>
 
       <div className="flex justify-between mt-5">
-        <span className="text-red-700 cursor-pointer">Delete Account</span>
-        <span className="text-red-700 cursor-pointer">Sign Out</span>
+        <span onClick={handleDeleteUser} className="text-red-700 cursor-pointer">Delete Account</span>
+        <span onClick={handleSignOut} className="text-red-700 cursor-pointer">Sign Out</span>
       </div>
+      <p className="text-red-700 mt-5">{error ? error : ""}</p>
+      <p className="text-green-700 mt-5">{success ? "User updated successfully": ""}</p>
     </div>
   );
 }

@@ -20,7 +20,7 @@ export default function SignUp() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      dispatch(SignUpStart());
+      dispatch(SignInStart());
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -28,13 +28,14 @@ export default function SignUp() {
       });
       const data = await res.json();
       if (data.success === false) {
-        dispatch(SignUpFailure(data.message));
+        dispatch(SignInFailure(data.message));
         return;
       }
-      dispatch(SignUpSuccess(data));
+      // Signup succeeded: do not log user in here. Navigate to sign-in and reset loading.
+      dispatch(SignInFailure(null));
       navigate("/signin");
     } catch (err) {
-      dispatch(SignUpFailure(err.message));
+      dispatch(SignInFailure(err.message));
     }
   };
 
