@@ -1,11 +1,12 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import {
   updateUserStart,
   updateUserSuccess,
   updateUserFailure,
 } from "../../redux/user/userSlice";
-import { deleteUserStart, deleteUserSuccess, deleteUserFailure } from "../../redux/user/userSlice";
+import { deleteUserStart, deleteUserSuccess, deleteUserFailure, signOutStart, signOutSuccess, signOutFailure } from "../../redux/user/userSlice";
 
 export default function Profile() {
   const fileRef = useRef();
@@ -121,24 +122,18 @@ export default function Profile() {
   };
 
   const handleSignOut = async () => {
-    if (!currentUser || !currentUser._id) {
-      return alert("No user logged in.");
-    }
-
     try {
       dispatch(signOutStart());
-
-      const res = await fetch(`/api/auth/signout`);
+      const res = await fetch(`/api/users/signout`, { credentials: "include" });
       const data = await res.json();
       if (data.success === false) {
-        dispatch(deleteUserFailure(data.message));
+        dispatch(signOutFailure(data.message));
         return;
       }
-
-      dispatch(deleteUserSuccess(data));
+      dispatch(signOutSuccess());
     } catch (err) {
-      console.error("Delete failed:", err);
-      dispatch(deleteUserFailure(err.message || "Delete failed"));
+      console.error("Sign out failed:", err);
+      dispatch(signOutFailure(err.message || "Sign out failed"));
     }
   };
 
@@ -198,6 +193,7 @@ export default function Profile() {
         >
           Update
         </button>
+        <Link to="/listing/create" className="bg-green-700 text-white p-3 rounded-lg text-center hover:opacity-95 uppercase">Create Listing</Link>
       </form>
 
       <div className="flex justify-between mt-5">
