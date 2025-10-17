@@ -31,7 +31,8 @@ app.listen(3000, () => {
 
 app.use("/api/auth", authRoute);
 app.use("/api/users", userRoute);
-app.use("/api/listing",  listingRoute);
+app.use("/api/listing", listingRoute);
+app.use("/api/listings", listingRoute);
 app.use((err, req, res, next) => {
   const status = err.status || 500;
   const message = err.message || "Something went wrong";

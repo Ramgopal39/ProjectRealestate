@@ -1,6 +1,7 @@
 import bcryptjs from "bcryptjs";
 import User from "../models/user_model.js";
 import { errorHandler } from "../utils/error.js";
+import Listing from "../models/listing_model.js";
 
 export const test = (req, res) => {
   res.json({ message: "User route is working!" });
@@ -56,5 +57,18 @@ export const signOut = (req, res, next) => {
     return res.status(200).json({ message: "User has been signed out!" });
   } catch (error) {
     next(error);
+  }
+};
+
+export const getUserListings = async (req, res, next) => {
+  if (req.user.id === req.params.id) {
+    try {
+      const listings = await Listing.find({ userRef: req.params.id });
+      return res.status(200).json(listings);
+    } catch (error) {
+      next(error);
+    }
+  }else{
+    return next(errorHandler(401, "You can only view your own listings!"));
   }
 };
