@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-export default function CreateListing() {
+import { useNavigate, useParams } from "react-router-dom";
+export default function UpdateListing() {
   const [files, setFiles] = useState([]);
   const [formData, setFormData] = useState({
     imageUrls: [],
@@ -23,7 +23,22 @@ export default function CreateListing() {
   const navigate = useNavigate();
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
-  console.log(formData);
+  const params = useParams();
+  
+  useEffect(() => {
+     const fetchListing = async () => {
+      const listingId = params.listingId;
+      const res = await fetch(`/api/listing/get/${listingId}`, { credentials: 'include' });
+      const data = await res.json();
+      if (data.success == false){
+        console.log(data.message);
+        return;
+      }
+      setFormData(data);
+     }
+     fetchListing();
+  }, []);
+
   const handleImageSubmit = async (e) => {
     if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
       const promises = [];
@@ -136,7 +151,7 @@ export default function CreateListing() {
       }
       setLoading(true);
       setError(false);
-      const res = await fetch("/api/listing/create", {
+      const res = await fetch(`/api/listing/update/${params.listingId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -147,16 +162,13 @@ export default function CreateListing() {
         }),
         credentials: 'include',
       });
-      const data = await res.json();
+      const data = await res.json(); 
       setLoading(false);
       if(!res.ok || data.success === false){
-        return setError(data.message || `Create failed (${res.status})`);
+        return setError(data.message || `Update failed (${res.status})`);
       }
-      const createdId = data._id || data.id || data.listing?._id || data.listing?.id;
-      if (!createdId) {
-        return setError("Create succeeded but no listing id returned");
-      }
-      navigate(`/listings/${createdId}`);
+      const updatedId = data._id || data.id || data.listing?._id || data.listing?.id || params.listingId;
+      navigate(`/listings/${updatedId}`);
     } catch (error) {
       setError(error.message);
       setLoading(false);
@@ -164,7 +176,7 @@ export default function CreateListing() {
   };
   return (
     <main className="p-3 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-semibold text-center my-7">Create Listing</h1>
+      <h1 className="text-3xl font-semibold text-center my-7">Update a listing</h1>
       <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4">
         <div className="flex flex-col gap-4 flex-1">
           <input
@@ -327,7 +339,7 @@ export default function CreateListing() {
           </div>
 
           <button disabled={loading || uploading} className="p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80">
-            {loading ? "Creating..." : "Create Listing"}
+            {loading ? "Creating..." : "Update Listing"}
           </button>
           {error && <p className="text-red-700 text-sm">{error}</p>}
         </div>
