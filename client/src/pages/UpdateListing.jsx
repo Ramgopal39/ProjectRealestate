@@ -8,6 +8,7 @@ export default function UpdateListing() {
     name: "ram",
     description: "",
     address: "",
+    contactNumber: "",
     type: "rent",
     parking: false,
     furnished: false,
@@ -133,7 +134,7 @@ export default function UpdateListing() {
         discountPrice: nextOffer ? formData.discountPrice : 0,
       })
     }
-    if(e.target.type === "number" || e.target.type === "text" || e.target.type === "textarea"){
+    if(e.target.type === "number" || e.target.type === "text" || e.target.type === "textarea" || e.target.type === "tel"){
       setFormData({
         ...formData,
         [e.target.id]: e.target.value,

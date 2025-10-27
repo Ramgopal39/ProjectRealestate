@@ -1,0 +1,43 @@
+version: '3.9'
+services:
+  mongo:
+    image: mongo:6
+    container_name: realestate-mongo
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+
+  api:
+    build: ./api
+    container_name: realestate-api
+    restart: unless-stopped
+    env_file:
+      - ./api/.env
+    environment:
+      - PORT=3000
+      - MONGO=${MONGO}
+      - JWT_SECRET=${JWT_SECRET}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - FRONTEND_URL=http://localhost
+    depends_on:
+      - mongo
+    volumes:
+      - ./api/uploads:/app/uploads
+    ports:
+      - "3000:3000"
+
+  client:
+    build: ./client
+    container_name: realestate-client
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - api
+    ports:
+      - "5173:80"
+
+volumes:
+  mongo-data:

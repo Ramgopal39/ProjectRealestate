@@ -249,14 +249,14 @@ export default function Profile() {
           return (
             <div key={listingId || Math.random()} className="border rounded-lg p-3 flex justify-between items-center gap-4">
               {listingId ? (
-                <Link to={`/listings/${listingId}`}>
+                <Link to={`/listing/${listingId}`}>
                   <img src={imgSrc} alt="listingcover" className="h-16 w-16 object-contain"/>
                 </Link>
               ) : (
                 <img src={imgSrc} alt="listingcover" className="h-16 w-16 object-contain"/>
               )}
               {listingId ? (
-                <Link className="text-slate-700 font-semibold flex-1 hover:underline truncate" to={`/listings/${listingId}`}>
+                <Link className="text-slate-700 font-semibold flex-1 hover:underline truncate" to={`/listing/${listingId}`}>
                   <p>{listing.name}</p>
                 </Link>
               ) : (

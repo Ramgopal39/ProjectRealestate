@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import ListingItem from "../components/ListingItem";
 
 export default function Search() {
     const navigate = useNavigate()
+    const location = useLocation();
+
     const [loading, setLoading] = useState(false);
     const [listings, setListings] = useState([]);
     const [showMore, setShowMore] = useState(false);
@@ -12,13 +15,14 @@ export default function Search() {
         parking: false,
         furnished: false,
         offer: false,
-        sort: "created_at",
+        sort: "createdAt",
         order: "desc"
     });
     
     useEffect(() => {
 
         const urlParams = new URLSearchParams(location.search);
+
         const searchTermFromUrl = urlParams.get('searchTerm');
         const typeFromUrl = urlParams.get('type');
         const parkingFromUrl = urlParams.get('parking');
@@ -42,7 +46,7 @@ export default function Search() {
                 parking: parkingFromUrl === 'true' ? true : false,
                 furnished: furnishedFromUrl === 'true' ? true : false,
                 offer: offerFromUrl === 'true' ? true : false,
-                sort: sortFromUrl || 'created_at',
+                sort: sortFromUrl || 'createdAt',
                 order: orderFromUrl || 'desc'
             });
         }
@@ -62,6 +66,7 @@ export default function Search() {
         };
         fetchListings();
     }, [location.search]);
+
     const handleChange = (e) => {
 
         if(e.target.id === "all" || e.target.id === "rent" || e.target.id === "sale"){
@@ -110,6 +115,7 @@ export default function Search() {
         }
         setListings([...listings, ...data]);
     }
+
     return (
         <div className="flex flex-col md:flex-row">
             <div className="p-7 border-b-2 md:border-r-2 md:min-h-screen">
@@ -123,7 +129,7 @@ export default function Search() {
                     <div className="flex gap-2  flex-wrap items-center">
                         <label className="font-semibold">Property Type:</label>
                         <div className="flex gap-2">
-                            <input type="checkbox" id="rent_sale" className="w-5"
+                            <input type="checkbox" id="all" className="w-5"
                             onChange={handleChange}
                             checked={sidebarData.type === "all"}/>
                             <span>Rent & Sale</span>
@@ -166,7 +172,7 @@ export default function Search() {
                         <label className="font-semibold">Sort:</label>
                         <select id="sort_order" className="border rounded-lg p-3"
                         onChange={handleChange}
-                        defaultValue={'created_at_desc'}
+                        defaultValue={'createdAt_desc'}
                         >
                             <option value='regularPrice_desc'>Price high to low</option>
                             <option value='regularPrice_asc'>Price low to high</option>
@@ -179,7 +185,7 @@ export default function Search() {
             </div>
             <div className="p-7 flex flex-col gap-4">
                 <h1 className="text-3xl font-semibold border-b p-3 text-slate-700 mt-5">Listing results:</h1>
-                <div className="p-7">
+                <div className="p-7 flex flex-wrap gap-4">
                     {!loading && listings.length === 0 && (
                         <p className="text-xl text-slate-700">No listings found</p>
                     )}
@@ -188,7 +194,7 @@ export default function Search() {
                     )}
                     {
                         !loading && listings && listings.map((listing) => (
-                            <ListingItem listing={listing} key={listing.id}/>
+                            <ListingItem listing={listing} key={listing._id || listing.id}/>
                         ))
                     }
                     {showMore && (

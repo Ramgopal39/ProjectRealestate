@@ -8,6 +8,7 @@ export default function CreateListing() {
     name: "ram",
     description: "",
     address: "",
+    contactNumber: "",
     type: "rent",
     parking: false,
     furnished: false,
@@ -118,7 +119,7 @@ export default function CreateListing() {
         discountPrice: nextOffer ? formData.discountPrice : 0,
       })
     }
-    if(e.target.type === "number" || e.target.type === "text" || e.target.type === "textarea"){
+    if(e.target.type === "number" || e.target.type === "text" || e.target.type === "textarea" || e.target.type === "tel"){
       setFormData({
         ...formData,
         [e.target.id]: e.target.value,
@@ -147,16 +148,21 @@ export default function CreateListing() {
         }),
         credentials: 'include',
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       setLoading(false);
+      if (res.status === 401) {
+        setError("You are not authenticated. Please sign in again.");
+        navigate('/signin');
+        return;
+      }
       if(!res.ok || data.success === false){
-        return setError(data.message || `Create failed (${res.status})`);
+        return setError((data && data.message) || `Create failed (${res.status})`);
       }
       const createdId = data._id || data.id || data.listing?._id || data.listing?.id;
       if (!createdId) {
         return setError("Create succeeded but no listing id returned");
       }
-      navigate(`/listings/${createdId}`);
+      navigate(`/listing/${createdId}`);
     } catch (error) {
       setError(error.message);
       setLoading(false);
@@ -195,6 +201,17 @@ export default function CreateListing() {
             required
             onChange={handleChange}
             value={formData.address}
+          />
+          <input
+            type="tel"
+            placeholder="Contact Number"
+            className="border p-3 rounded-lg"
+            id="contactNumber"
+            required
+            onChange={handleChange}
+            value={formData.contactNumber}
+            pattern="^\\d{10}$"
+            title="Enter a 10-digit phone number"
           />
 
           <div className="flex gap-6 flex-wrap">

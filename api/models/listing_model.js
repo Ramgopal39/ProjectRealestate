@@ -13,6 +13,11 @@ const listingSchema = new mongoose.Schema({
         type:String,
         required:true
     },
+    contactNumber:{
+        type:String,
+        required:true,
+        match: [/^\d{10}$/, 'Contact number must be exactly 10 digits']
+    },
     regularPrice:{
         type:Number,
         required:true
@@ -22,6 +27,10 @@ const listingSchema = new mongoose.Schema({
         required:true
     },
     bedrooms:{
+        type:Number,
+        required:true
+    },
+    bathrooms:{
         type:Number,
         required:true
     },
@@ -43,7 +52,11 @@ const listingSchema = new mongoose.Schema({
     },
     imageUrls:{
         type:Array,
-        required:true
+        required:true,
+        validate: [
+          function(arr){ return Array.isArray(arr) && arr.length >= 2; },
+          'At least 2 images are required'
+        ]
     },
     userRef:{
         type:String,

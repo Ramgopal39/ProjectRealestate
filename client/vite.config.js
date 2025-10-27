@@ -16,5 +16,11 @@ export default defineConfig({
         secure: false,
       },
     },
+    // ✅ Add these headers to prevent COOP popup issues
+    headers: {
+      "Cross-Origin-Opener-Policy": "unsafe-none",
+      "Cross-Origin-Embedder-Policy": "unsafe-none",
+    },
   },
 });
+

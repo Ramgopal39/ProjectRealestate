@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import userRoute from "./routes/user_route.js";
 import authRoute from "./routes/auth_route.js";
 import listingRoute from "./routes/listing_route.js";
+import bookingRoute from "./routes/booking_route.js";
 import cookieParser from "cookie-parser";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -33,6 +34,7 @@ app.use("/api/auth", authRoute);
 app.use("/api/users", userRoute);
 app.use("/api/listing", listingRoute);
 app.use("/api/listings", listingRoute);
+app.use("/api/bookings", bookingRoute);
 app.use((err, req, res, next) => {
   const status = err.status || 500;
   const message = err.message || "Something went wrong";

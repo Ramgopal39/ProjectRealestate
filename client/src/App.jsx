@@ -12,6 +12,9 @@ import Listing from "./pages/Listing";
 import UpdateListing from "./pages/UpdateListing";
 import Search from "./pages/Search";
 import ListingItem from "./components/ListingItem";
+import Booking from "./pages/Booking";
+import BookingSuccess from "./pages/BookingSuccess";
+import BookingCancel from "./pages/BookingCancel";
 export default function App() {
     return <BrowserRouter>
     <Header/>
@@ -22,6 +25,9 @@ export default function App() {
             <Route path="/about" element={<About/>}/>
             <Route path="/search" element={<Search/>}/>
             <Route path="/listing/:listingId" element={<Listing/>}/>
+            <Route path="/booking/:listingId" element={<Booking/>}/>
+            <Route path="/booking/success" element={<BookingSuccess/>}/>
+            <Route path="/booking/cancel" element={<BookingCancel/>}/>
             <Route element={<PrivateRoute/>}>
               <Route path="/profile" element={<Profile/>}/>
               <Route path="/create-listing" element={<CreateListing/>}/>

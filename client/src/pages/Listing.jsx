@@ -5,7 +5,8 @@ import { Navigation, Pagination } from "swiper/modules";
 import SwiperCore from "swiper";
 import {useSelector} from "react-redux";
 import "swiper/css/bundle";
-import { FaBath, FaChair, FaMapMarkedAlt, FaShare, FaBed, FaParking } from "react-icons/fa";
+import { FaBath, FaChair, FaMapMarkerAlt, FaShare, FaBed, FaParking, FaPhone } from "react-icons/fa";
+import Contact from "../components/Contact";
  
 export default function Listing() {
   SwiperCore.use([Navigation, Pagination]);
@@ -13,10 +14,10 @@ export default function Listing() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [Contact, setContact] = useState(false);
+  const [showContact, setShowContact] = useState(false);
   const params = useParams();
   const {currentUser} = useSelector((state) => state.user);
-  console.log(currentUser._id, listing?.userRef);
+  console.log(currentUser?._id, listing?.userRef);
    useEffect(() => {
     const fetchListing = async () => {
       try {
@@ -56,7 +57,7 @@ export default function Listing() {
       <div>
         <FaShare
            className="text-slate-500"
-           onclick={() => {
+           onClick={() => {
             navigator.clipboard.writeText(window.location.href);
             setCopied(true);
             setTimeout(() => {
@@ -75,10 +76,23 @@ export default function Listing() {
             ? listing.discountPrice.toLocaleString('en-US') : listing.regularPrice.toLocaleString('en-US')}
             {listing.type === 'rent' && '/month'}
           </p>
-          <p className="flex items-center gap-2 mt-2 text-slate-600 my-2 text-sm">
-            <FaMapMarkerAlt className="text-green-500"/>
-            {listing.address}
-          </p>
+          <div className="flex items-center gap-4 mt-2 text-slate-600 my-2 text-sm">
+            <a
+              className="flex items-center gap-2 hover:underline"
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(listing.address)}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <FaMapMarkerAlt className="text-green-500"/>
+              <span>{listing.address}</span>
+            </a>
+            {listing.contactNumber && (
+              <span className="flex items-center gap-2">
+                <FaPhone className="text-green-500"/>
+                <a href={`tel:${listing.contactNumber}`} className="hover:underline">{listing.contactNumber}</a>
+              </span>
+            )}
+          </div>
           <div className="flex gap-4">
             <p className="bg-red-700 w-full max-w-[200px] text-white text-center p-1 rounded-md">
               {listing.type === 'rent' ? 'For Rent' : 'For Sale'}
@@ -110,11 +124,19 @@ export default function Listing() {
             {listing.furnished ? 'Furnished' : 'Not Furnished'}
           </li>
         </ul>
-        {currentUser && listing.userRef !== currentUser._id && !Contact && (
-          <button onClick={() => setContact(true)}
-          className="bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 p-3">Contact landlord</button>
+        {(!currentUser || listing.userRef !== currentUser._id) && !showContact && (
+          <div className="flex gap-3 flex-wrap">
+            <button onClick={() => setShowContact(true)}
+            className="bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 p-3">Contact landlord</button>
+            <a
+              href={`/booking/${listing._id}`}
+              className="bg-green-700 text-white rounded-lg uppercase hover:opacity-95 p-3"
+            >
+              Book Now
+            </a>
+          </div>
         )}
-        {Contact && <Contact listing={listing}/>}
+        {showContact && <Contact listing={listing}/>}
       </div>
       </div> 
     )}

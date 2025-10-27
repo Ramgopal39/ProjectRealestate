@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import ListingItem from "../components/ListingItem";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css/bundle";
 import { Navigation } from "swiper/modules";
@@ -80,7 +81,7 @@ export default function Home() {
                                 <h2 className="text-slate-700 font-semibold text-2xl">Recent offers</h2>
                                 <Link to={"/search?offer=true"} className="text-sm text-blue-800 hover:underline">See all offers</Link>
                             </div> 
-                            <div className="flexx flex-wrap gap-4"> 
+                            <div className="flex flex-wrap gap-4"> 
                                 {
                                     offerListings.map((listing) => (
                                         <ListingItem listing={listing} key={listing._id}/>
@@ -97,7 +98,7 @@ export default function Home() {
                                 <h2 className="text-slate-700 font-semibold text-2xl">Recent places for rent</h2>
                                 <Link to={"/search?type=rent"} className="text-sm text-blue-800 hover:underline">See all places</Link>
                             </div> 
-                            <div className="flexx flex-wrap gap-4"> 
+                            <div className="flex flex-wrap gap-4"> 
                                 {
                                     rentListings.map((listing) => (
                                         <ListingItem listing={listing} key={listing._id}/>
@@ -114,7 +115,7 @@ export default function Home() {
                                 <h2 className="text-slate-700 font-semibold text-2xl">Recent places for sale</h2>
                                 <Link to={"/search?type=sale"} className="text-sm text-blue-800 hover:underline">See all places</Link>
                             </div> 
-                            <div className="flexx flex-wrap gap-4"> 
+                            <div className="flex flex-wrap gap-4"> 
                                 {
                                     saleListings.map((listing) => (
                                         <ListingItem listing={listing} key={listing._id}/>
