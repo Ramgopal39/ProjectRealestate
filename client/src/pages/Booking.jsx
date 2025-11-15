@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 
@@ -7,6 +7,14 @@ export default function Booking() {
   const navigate = useNavigate();
   const { currentUser } = useSelector((s) => s.user);
 
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!currentUser) {
+      navigate('/signin', { state: { from: `/listing/${listingId}/book` } });
+      return;
+    }
+  }, [currentUser, navigate, listingId]);
+
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -14,7 +22,7 @@ export default function Booking() {
   const [uploading, setUploading] = useState(false);
 
   const [form, setForm] = useState({
-    customerName: "",
+    customerName: currentUser?.username || "",
     phone: "",
     address: "",
     idProofUrl: "",
@@ -52,11 +60,24 @@ export default function Booking() {
     return listing.offer ? Number(listing.discountPrice) : Number(listing.regularPrice);
   }, [listing]);
 
+  const [phoneError, setPhoneError] = useState("");
+
+  const validatePhone = (phone) => {
+    if (phone.length === 0) return "Phone number is required";
+    if (!/^\d{10}$/.test(phone)) return "Phone must be exactly 10 digits";
+    return "";
+  };
+
   const onChange = (e) => {
     const { id, value } = e.target;
     if (id === 'phone') {
       const digits = value.replace(/\D+/g, '').slice(0, 10);
       setForm({ ...form, phone: digits });
+      // Clear error when user starts typing
+      if (phoneError && digits.length === 10) {
+        setPhoneError("");
+        setError("");
+      }
     } else {
       setForm({ ...form, [id]: value });
     }
@@ -92,8 +113,9 @@ export default function Booking() {
   const onSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    if (!/^\d{10}$/.test(form.phone)) {
-      setError("Phone must be exactly 10 digits");
+    const phoneValidation = validatePhone(form.phone);
+    if (phoneValidation) {
+      setPhoneError(phoneValidation);
       return;
     }
     if (!form.idProofUrl) {
@@ -137,25 +159,53 @@ export default function Booking() {
   };
 
   const onContinueAndPay = async () => {
-    if (!bookingId) return;
-    try {
-      setSubmitting(true);
-      const res = await fetch(`/api/bookings/checkout-session`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ bookingId }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data?.url) {
-        setError(data.message || "Failed to initialize payment");
-        setSubmitting(false);
+    if (!bookingId) {
+      // If booking is not saved yet, save it first
+      if (form.phone.length !== 10) {
+        setError("Please enter a valid 10-digit phone number");
         return;
       }
-      window.location.href = data.url;
-    } catch (err) {
-      setError(err.message);
-      setSubmitting(false);
+      if (!form.idProofUrl) {
+        setError("Please upload ID proof before continuing");
+        return;
+      }
+      
+      try {
+        setSubmitting(true);
+        const res = await fetch(`/api/bookings`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            listingId,
+            customerName: form.customerName,
+            phone: form.phone,
+            address: form.address,
+            idProofUrl: form.idProofUrl,
+            amount,
+            currency: "USD",
+          }),
+        });
+        
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.message || "Failed to save booking");
+        }
+        
+        const createdId = data._id || data.booking?._id;
+        if (!createdId) {
+          throw new Error("Booking ID not received from server");
+        }
+        
+        // Redirect to payment page with the new booking ID
+        navigate(`/payment?bookingId=${createdId}`);
+      } catch (err) {
+        setError(err.message || "Failed to process booking");
+        setSubmitting(false);
+      }
+    } else {
+      // If booking is already saved, just redirect to payment
+      navigate(`/payment?bookingId=${bookingId}`);
     }
   };
 
@@ -173,7 +223,21 @@ export default function Booking() {
       )}
       <form onSubmit={onSubmit} className="flex flex-col gap-3">
         <input id="customerName" type="text" className="border p-3 rounded-lg" placeholder="Full Name" value={form.customerName} onChange={onChange} required />
-        <input id="phone" type="tel" inputMode="numeric" className="border p-3 rounded-lg" placeholder="10-digit Phone" value={form.phone} onChange={onChange} required pattern="\\d{10}" maxLength={10} />
+        <div className="w-full">
+          <input 
+            id="phone" 
+            type="tel" 
+            inputMode="numeric" 
+            className={`border p-3 rounded-lg w-full ${phoneError ? 'border-red-500' : 'border-gray-300'}`} 
+            placeholder="10-digit Phone" 
+            value={form.phone} 
+            onChange={onChange} 
+            onBlur={() => setPhoneError(validatePhone(form.phone))}
+            required 
+            maxLength={10} 
+          />
+          {phoneError && <p className="text-red-500 text-sm mt-1">{phoneError}</p>}
+        </div>
         <input id="address" type="text" className="border p-3 rounded-lg" placeholder="Your Address" value={form.address} onChange={onChange} required />
 
         <div className="flex items-center gap-3">
