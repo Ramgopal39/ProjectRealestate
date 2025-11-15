@@ -1,6 +1,18 @@
 # Real Estate App
 
-Full‑stack MERN real estate application with authentication, listings, search, contact, booking, and Stripe Checkout. Client is built with Vite + React and served via Nginx in Docker. API is Express + MongoDB.
+Production‑ready MERN application for property listings, contact, and bookings with Stripe payments. Built with React + Vite, Express + MongoDB, and fully containerized with Docker (Nginx front, API, Mongo).
+
+## Table of Contents
+- Features
+- Tech Stack
+- Local Development
+- Docker Setup
+- Environment Variables
+- Booking Flow and API
+- Listing Creation
+- Troubleshooting
+- Scripts
+- License
 
 ## Features
 - Google auth (redirect‑based, COOP‑safe)
