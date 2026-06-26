@@ -240,14 +240,20 @@ export default function Booking() {
         </div>
         <input id="address" type="text" className="border p-3 rounded-lg" placeholder="Your Address" value={form.address} onChange={onChange} required />
 
-        <div className="flex items-center gap-3">
-          <input id="idProof" type="file" accept="image/*" onChange={onFileChange} />
-          {uploading && <span className="text-sm">Uploading...</span>}
-          {form.idProofUrl && <a href={form.idProofUrl} target="_blank" rel="noreferrer" className="text-green-700 underline text-sm">View uploaded ID</a>}
+        <div className="flex flex-col gap-1">
+          <label htmlFor="idProof" className="text-sm text-slate-500 italic">Note: Please upload your ID proof before proceeding.</label>
+          <div className="flex items-center gap-3">
+            <input id="idProof" type="file" accept="image/*" onChange={onFileChange} />
+            {uploading && <span className="text-sm">Uploading...</span>}
+            {form.idProofUrl && <a href={form.idProofUrl} target="_blank" rel="noreferrer" className="text-green-700 underline text-sm">View uploaded ID</a>}
+          </div>
         </div>
 
+        {bookingId && <div className="p-3 bg-green-100 text-green-800 rounded-lg">Booking details saved successfully! You can now proceed to payment.</div>}
         <div className="flex gap-3 mt-2">
-          <button disabled={submitting || uploading} className="bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 p-3 disabled:opacity-60">Save Booking</button>
+          <button disabled={submitting || uploading || bookingId} className={`${bookingId ? 'bg-slate-400' : 'bg-slate-700'} text-white rounded-lg uppercase hover:opacity-95 p-3 disabled:opacity-60`}>
+            {bookingId ? "Saved!" : "Save Booking"}
+          </button>
           <button type="button" disabled={!bookingId || submitting} onClick={onContinueAndPay} className="bg-green-700 text-white rounded-lg uppercase hover:opacity-95 p-3 disabled:opacity-60">Continue and Pay</button>
         </div>
       </form>

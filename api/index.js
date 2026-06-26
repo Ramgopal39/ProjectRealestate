@@ -9,7 +9,10 @@ import cookieParser from "cookie-parser";
 import path from "path";
 import { fileURLToPath } from "url";
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.join(__dirname, "../.env") });
 
 mongoose.connect(process.env.MONGO).then(() => {
   console.log("Connected to MongoDB");
@@ -22,8 +25,6 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Serve static files from uploads directory
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.listen(3000, () => {

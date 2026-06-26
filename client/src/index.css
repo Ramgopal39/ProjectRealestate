@@ -6,3 +6,28 @@
 body {
     background-color: rgb(241, 245, 241);
 }
+
+/* Custom Swiper Navigation Buttons styling */
+.swiper-button-next,
+.swiper-button-prev {
+  background-color: rgba(15, 23, 42, 0.65) !important;
+  color: #ffffff !important;
+  width: 50px !important;
+  height: 50px !important;
+  border-radius: 50% !important;
+  backdrop-filter: blur(4px) !important;
+  transition: all 0.2s ease-in-out !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3) !important;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+  background-color: rgba(15, 23, 42, 0.9) !important;
+  transform: scale(1.08) !important;
+}
+
+.swiper-button-next::after,
+.swiper-button-prev::after {
+  font-size: 18px !important;
+  font-weight: 900 !important;
+}

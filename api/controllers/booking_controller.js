@@ -34,7 +34,7 @@ export const createBooking = async (req, res, next) => {
     }
 
     // Validate amount is a number
-    if (isNaN(Number(amount)) || Number(amount) <= 0) {
+    if (isNaN(Number(amount)) || Number(amount) < 0) {
       return res.status(400).json({ 
         success: false, 
         message: "Please provide a valid booking amount" 

@@ -68,7 +68,7 @@ export default function OAuth() {
         const data = await res.json();
         dispatch(SignInSuccess(data));
         navigate("/");
-      } catch (popupError) {
+      } catch {
         console.warn(
           "Popup blocked or COOP issue detected, falling back to redirect..."
         );

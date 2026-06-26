@@ -11,14 +11,14 @@ import { deleteUserStart, deleteUserSuccess, deleteUserFailure, signOutStart, si
 export default function Profile() {
   const fileRef = useRef();
   const dispatch = useDispatch();
-  const { currentUser, error, loading } = useSelector((state) => state.user);
+  const { currentUser, error } = useSelector((state) => state.user);
 
   // file / preview state
   const [file, setFile] = useState(undefined);
   const [imagePreview, setImagePreview] = useState(
     currentUser?.photoURL || currentUser?.avatar || "/default-avatar.png"
   );
-  const [filePerc, setFilePerc] = useState(0);
+
   const [success, setSuccess] = useState(false);
 
   // controlled form state initialized from currentUser
@@ -58,7 +58,8 @@ export default function Profile() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!currentUser || !currentUser._id) {
+    const userId = currentUser?._id || currentUser?.id;
+    if (!userId) {
       return alert("No user logged in.");
     }
 
@@ -73,7 +74,7 @@ export default function Profile() {
       dispatch(updateUserStart());
 
       // IMPORTANT: make sure this path matches your backend route
-      const res = await fetch(`/api/users/update/${currentUser._id}`, {
+      const res = await fetch(`/api/users/update/${userId}`, {
         method: "POST",
         body: payload,
         credentials: "include", // include cookies if your auth uses httpOnly cookie
@@ -100,14 +101,15 @@ export default function Profile() {
   };
 
   const handleDeleteUser = async () => {
-    if (!currentUser || !currentUser._id) {
+    const userId = currentUser?._id || currentUser?.id;
+    if (!userId) {
       return alert("No user logged in.");
     }
 
     try {
       dispatch(deleteUserStart());
 
-      const res = await fetch(`/api/users/delete/${currentUser._id}`, {
+      const res = await fetch(`/api/users/delete/${userId}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -143,7 +145,10 @@ export default function Profile() {
   const handleShowListings = async () => {
    try {
     setShowListingsError(false);
-    const res = await fetch(`/api/users/listings/${currentUser._id}`, { credentials: "include" });
+    const userId = currentUser?._id || currentUser?.id;
+    if (!userId) return;
+    
+    const res = await fetch(`/api/users/listings/${userId}`, { credentials: "include" });
       const data = await res.json();
       if (!res.ok || data?.success === false) {
         setShowListingsError(true);
@@ -151,7 +156,7 @@ export default function Profile() {
       }
       // backend returns array; fallback to data.listings if wrapped
       setUserListings(Array.isArray(data) ? data : (data.listings || []));
-   } catch (error) {
+   } catch {
      setShowListingsError(true);
    } 
   }

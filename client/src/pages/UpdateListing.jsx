@@ -38,9 +38,9 @@ export default function UpdateListing() {
       setFormData(data);
      }
      fetchListing();
-  }, []);
+  }, [params.listingId]);
 
-  const handleImageSubmit = async (e) => {
+  const handleImageSubmit = async () => {
     if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
       const promises = [];
       setUpLoading(true);
@@ -70,41 +70,35 @@ export default function UpdateListing() {
   };
 
   const storeImage = async (file) => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const cloudName = (import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "").trim();
-        const uploadPreset = (import.meta.env.VITE_CLOUDINARY_UNSIGNED_UPLOAD_PRESET || "").trim();
-        const folder = (import.meta.env.VITE_CLOUDINARY_FOLDER || "").trim();
+    const cloudName = (import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "").trim();
+    const uploadPreset = (import.meta.env.VITE_CLOUDINARY_UNSIGNED_UPLOAD_PRESET || "").trim();
+    const folder = (import.meta.env.VITE_CLOUDINARY_FOLDER || "").trim();
 
-        if (!cloudName || !uploadPreset) {
-          throw new Error(
-            "Missing Cloudinary config. Set VITE_CLOUDINARY_CLOUD_NAME and VITE_CLOUDINARY_UNSIGNED_UPLOAD_PRESET"
-          );
-        }
+    if (!cloudName || !uploadPreset) {
+      throw new Error(
+        "Missing Cloudinary config. Set VITE_CLOUDINARY_CLOUD_NAME and VITE_CLOUDINARY_UNSIGNED_UPLOAD_PRESET"
+      );
+    }
 
-        const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+    const url = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
 
-        const fd = new FormData();
-        fd.append("file", file);
-        fd.append("upload_preset", uploadPreset);
-        if (folder) fd.append("folder", folder);
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("upload_preset", uploadPreset);
+    if (folder) fd.append("folder", folder);
 
-        const res = await fetch(url, {
-          method: "POST",
-          body: fd,
-        });
-
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error(`Cloudinary upload failed: ${res.status} ${text}`);
-        }
-
-        const data = await res.json();
-        resolve(data.secure_url || data.url);
-      } catch (err) {
-        reject(err);
-      }
+    const res = await fetch(url, {
+      method: "POST",
+      body: fd,
     });
+
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Cloudinary upload failed: ${res.status} ${text}`);
+    }
+
+    const data = await res.json();
+    return (data.secure_url || data.url);
   };
 
   const handleRemoveImage = (index) => {
@@ -208,6 +202,17 @@ export default function UpdateListing() {
             required
             onChange={handleChange}
             value={formData.address}
+          />
+          <input
+            type="tel"
+            placeholder="Contact Number"
+            className="border p-3 rounded-lg"
+            id="contactNumber"
+            required
+            onChange={handleChange}
+            value={formData.contactNumber}
+            pattern="[0-9]{10}"
+            title="Enter a 10-digit phone number"
           />
 
           <div className="flex gap-6 flex-wrap">

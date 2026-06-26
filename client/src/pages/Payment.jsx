@@ -9,7 +9,6 @@ export default function Payment() {
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [selectedMethod, setSelectedMethod] = useState('');
   const [processing, setProcessing] = useState(false);
 
   // Get bookingId from URL or location state
