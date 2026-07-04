@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /booking/success
+Disallow: /booking/cancel
+Disallow: /payment
+Disallow: /profile
+Disallow: /create-listing
+Disallow: /update-listing/
+
+Sitemap: http://localhost:4173/sitemap.xml

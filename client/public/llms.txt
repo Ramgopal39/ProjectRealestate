@@ -1,0 +1,26 @@
+# Homely Real Estate Platform
+
+A modern full-stack web application designed for real estate search, listings management, and booking properties online.
+
+## Website Navigation & Public Endpoints
+- `/` - Landing Page showing featured offers, rentals, and sales.
+- `/about` - Information about the company and real estate services.
+- `/search` - Multi-criteria search engine with filters (rent vs sale, offer, parking, furnished, sorting, search keyword).
+- `/listing/:listingId` - Real estate listing detailed page showing photos, location, details, price, description, amenities, and contact booking action.
+
+## Private & User Account Endpoints
+- `/signin` - User login.
+- `/signup` - User registration.
+- `/profile` - Profile management showing user information, listings, and active bookings.
+- `/create-listing` - Page to list new properties (inputs: title, description, address, regular price, discount price, rooms, type, parking, furnished, images).
+- `/update-listing/:listingId` - Modify an existing real estate listing.
+- `/booking/:listingId` - Secure booking screen to configure reservation dates.
+- `/payment` - Stripe payment integration flow.
+
+## Key APIs
+- `GET /api/listings/get` - Search property listings.
+- `GET /api/listings/get/:id` - Fetch listing details by ID.
+- `POST /api/auth/signup` - Register a new user.
+- `POST /api/auth/signin` - Authenticate a user.
+- `POST /api/bookings/create` - Create property reservation.
+- `POST /api/payments/create-checkout-session` - Stripe payment gateway integration.

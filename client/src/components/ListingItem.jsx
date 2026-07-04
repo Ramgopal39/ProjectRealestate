@@ -13,6 +13,7 @@ export default function ListingItem({ listing }) {
                         src={listing.imageUrls[0] || "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=500&q=80"} 
                         alt="property cover" 
                         className='h-full w-full object-cover hover:scale-105 transition-transform duration-500' 
+                        loading="lazy"
                     />
                     <div className="absolute top-3 left-3 flex flex-col gap-1.5">
                         <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider shadow-sm text-white ${listing.type === 'rent' ? 'bg-blue-600' : 'bg-emerald-600'}`}>

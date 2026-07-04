@@ -22,5 +22,29 @@ export default defineConfig({
       "Cross-Origin-Embedder-Policy": "unsafe-none",
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            if (id.includes("swiper")) {
+              return "swiper";
+            }
+            if (id.includes("@stripe") || id.includes("stripe")) {
+              return "stripe";
+            }
+            if (id.includes("firebase")) {
+              return "firebase";
+            }
+            if (id.includes("react-icons") || id.includes("md") || id.includes("fa")) {
+              return "react-icons";
+            }
+            return "vendor";
+          }
+        },
+      },
+    },
+    chunkSizeWarningLimit: 600,
+  },
 });
 

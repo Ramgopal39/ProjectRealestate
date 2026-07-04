@@ -44,28 +44,30 @@ export default function Header() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <button><FaSearch className="text-slate-600 ml-2" /></button>
+          <button aria-label="Search"><FaSearch className="text-slate-600 ml-2" /></button>
         </form>
 
         {/* Navigation menu */}
         <ul className="flex gap-4 items-center">
-            <Link to="/">          
-            <li className="text-slate-700 hover:underline">Home</li>
-            </Link>
-            <Link to="/about">
-            <li className="text-slate-700 hover:underline">About</li>
-            </Link>
+          <li className="text-slate-700 hover:underline">
+            <Link to="/">Home</Link>
+          </li>
+          <li className="text-slate-700 hover:underline">
+            <Link to="/about">About</Link>
+          </li>
+          <li>
             <Link to="/profile">
-            {currentUser ? (
-              currentUser.photoURL ? (
-                <img className="w-8 h-8 rounded-full object-cover" src={currentUser.photoURL} alt="profile" />
+              {currentUser ? (
+                currentUser.photoURL ? (
+                  <img className="w-8 h-8 rounded-full object-cover" src={currentUser.photoURL} alt="profile" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-slate-400 flex items-center justify-center text-white text-xs">U</div>
+                )
               ) : (
-                <div className="w-8 h-8 rounded-full bg-slate-400 flex items-center justify-center text-white text-xs">U</div>
-              )
-            ) : (
-              <li className="text-slate-700 hover:underline">Sign in</li>
-            )}
+                <span className="text-slate-700 hover:underline">Sign in</span>
+              )}
             </Link>
+          </li>
         </ul>
       </div>
     </header>
